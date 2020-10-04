@@ -1,0 +1,2 @@
+node app.js  > log-file.txt
+node --stack-size=16000 app.js > log-file.txt
