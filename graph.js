@@ -1,3 +1,7 @@
+const lineReader = require("line-reader");
+var vertexIndex;
+var tail, head;
+
 // create a graph class
 module.exports = class Graph {
   // defining vertex array and
@@ -5,6 +9,17 @@ module.exports = class Graph {
   constructor(noOfVertices) {
     this.noOfVertices = noOfVertices;
     this.AdjList = new Map();
+  }
+
+  addVertices(noOfVertices, callback) {
+    for (var i = 0; i < noOfVertices; i++) {
+      //vertexIndex = i + 1;
+      vertexIndex = i;
+      this.addVertex(vertexIndex.toString());
+    }
+    if (callback) {
+      callback();
+    }
   }
 
   // add vertex to the graph
@@ -22,6 +37,38 @@ module.exports = class Graph {
     // Since graph is undirected,
     // add an edge from w to v also
     //this.AdjList.get(w).push(v);
+  }
+
+  addEdgesFromtxt(txtPath, callback) {
+    lineReader.eachLine(
+      txtPath,
+      function (line) {
+        tail = line.split(" ")[0];
+        head = line.split(" ")[1];
+        this.addEdge(tail, head);
+      }.bind(this),
+      callback
+    );
+  }
+
+  getTranspose(callback) {
+    var g = new Graph(this.noOfVertices);
+    g.addVertices(
+      this.noOfVertices,
+      function () {
+        for (var vertex = 0; vertex < this.noOfVertices; vertex++) {
+          var get_neighbours = this.AdjList.get(vertex.toString());
+          //console.log(get_neighbours);
+          for (var edge of get_neighbours) {
+            // g.addEdge(edge, vertex.toString());
+            //console.log(`edge${edge},vertex${vertex}`);
+
+            g.addEdge(edge, vertex.toString());
+          }
+        }
+        callback(g);
+      }.bind(this)
+    );
   }
 
   printGraph() {
@@ -51,12 +98,27 @@ module.exports = class Graph {
     this.DFSUtil(startingNode, visited);
   }
 
+  // Main DFS method
+  fillOrder(vert, visited, stack, callback) {
+    visited[vert] = true;
+
+    var get_neighbours = this.AdjList.get(vert);
+    for (var edge of get_neighbours) {
+      if (!visited[edge]) {
+        this.fillOrder(edge, visited, stack);
+      }
+    }
+    stack.push(vert);
+    if (callback) {
+      callback();
+    }
+  }
+
   // Recursive function which process and explore
   // all the adjacent vertex of the vertex with which it is called
   DFSUtil(vert, visited) {
     visited[vert] = true;
-    console.log(vert);
-
+    console.log(`${vert},`);
     var get_neighbours = this.AdjList.get(vert);
 
     for (var i in get_neighbours) {
