@@ -13,8 +13,8 @@ module.exports = class Graph {
 
   addVertices(noOfVertices, callback) {
     for (var i = 0; i < noOfVertices; i++) {
-      //vertexIndex = i + 1;
-      vertexIndex = i;
+      vertexIndex = i + 1;
+      //vertexIndex = i;
       this.addVertex(vertexIndex.toString());
     }
     if (callback) {
@@ -53,17 +53,19 @@ module.exports = class Graph {
 
   getTranspose(callback) {
     var g = new Graph(this.noOfVertices);
+    var vertexAux;
     g.addVertices(
       this.noOfVertices,
       function () {
         for (var vertex = 0; vertex < this.noOfVertices; vertex++) {
-          var get_neighbours = this.AdjList.get(vertex.toString());
+          vertexAux = vertex + 1;
+          var get_neighbours = this.AdjList.get(vertexAux.toString());
           //console.log(get_neighbours);
           for (var edge of get_neighbours) {
             // g.addEdge(edge, vertex.toString());
             //console.log(`edge${edge},vertex${vertex}`);
-
-            g.addEdge(edge, vertex.toString());
+            //g.addEdge(edge, vertex.toString());
+            g.addEdge(edge, vertexAux.toString());
           }
         }
         callback(g);
