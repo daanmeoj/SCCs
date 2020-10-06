@@ -11,15 +11,15 @@ module.exports = class Graph {
     this.AdjList = new Map();
   }
 
-  addVertices(noOfVertices, callback) {
-    for (var i = 0; i < noOfVertices; i++) {
-      vertexIndex = i + 1;
-      //vertexIndex = i;
-      this.addVertex(vertexIndex.toString());
-    }
-    if (callback) {
-      callback();
-    }
+  addVertices(noOfVertices) {
+    return new Promise((resolve, reject) => {
+      for (var i = 0; i < noOfVertices; i++) {
+        //vertexIndex = i + 1;
+        vertexIndex = i;
+        this.addVertex(vertexIndex.toString());
+      }
+      resolve();
+    });
   }
 
   // add vertex to the graph
@@ -39,38 +39,41 @@ module.exports = class Graph {
     //this.AdjList.get(w).push(v);
   }
 
-  addEdgesFromtxt(txtPath, callback) {
-    lineReader.eachLine(
-      txtPath,
-      function (line) {
-        tail = line.split(" ")[0];
-        head = line.split(" ")[1];
-        this.addEdge(tail, head);
-      }.bind(this),
-      callback
-    );
+  addEdgesFromtxt(txtPath) {
+    return new Promise((resolve, reject) => {
+      lineReader.eachLine(
+        txtPath,
+        function (line) {
+          tail = line.split(" ")[0];
+          head = line.split(" ")[1];
+          this.addEdge(tail, head);
+        }.bind(this),
+        resolve
+      );
+    });
   }
 
-  getTranspose(callback) {
-    var g = new Graph(this.noOfVertices);
-    var vertexAux;
-    g.addVertices(
-      this.noOfVertices,
-      function () {
+  getTranspose() {
+    return new Promise((resolve, reject) => {
+      var g = new Graph(this.noOfVertices);
+      var vertexAux;
+      var p = g.addVertices(this.noOfVertices);
+      p.then(() => {
         for (var vertex = 0; vertex < this.noOfVertices; vertex++) {
-          vertexAux = vertex + 1;
-          var get_neighbours = this.AdjList.get(vertexAux.toString());
+          //vertexAux = vertex + 1;
+          var get_neighbours = this.AdjList.get(vertex.toString());
           //console.log(get_neighbours);
           for (var edge of get_neighbours) {
             // g.addEdge(edge, vertex.toString());
             //console.log(`edge${edge},vertex${vertex}`);
             //g.addEdge(edge, vertex.toString());
-            g.addEdge(edge, vertexAux.toString());
+            g.addEdge(edge, vertex.toString());
           }
         }
-        callback(g);
-      }.bind(this)
-    );
+        //console.log(g);
+        resolve(g);
+      });
+    });
   }
 
   printGraph() {
